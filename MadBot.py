@@ -39,10 +39,7 @@ import sc2
 import sc2.units
 from sc2.constants import (
     ADEPT,
-    ARCHON_WARP_TARGET,
     ASSIMILATOR,
-    BLINKTECH,
-    CHARGE,
     CHRONOBOOSTENERGYCOST,
     COLOSSUS,
     CYBERNETICSCORE,
@@ -63,24 +60,13 @@ from sc2.constants import (
     GUARDIANSHIELD_GUARDIANSHIELD,
     HARVEST_RETURN,
     IMMORTAL,
-    MORPH_ARCHON,
     MORPH_WARPGATE,
     NEXUS,
     OBSERVER,
     PHOTONCANNON,
     PROBE,
-    PROTOSSGROUNDARMORSLEVEL1,
-    PROTOSSGROUNDARMORSLEVEL2,
-    PROTOSSGROUNDARMORSLEVEL3,
-    PROTOSSGROUNDWEAPONSLEVEL1,
-    PROTOSSGROUNDWEAPONSLEVEL2,
-    PROTOSSGROUNDWEAPONSLEVEL3,
-    PROTOSSSHIELDSLEVEL1,
-    PROTOSSSHIELDSLEVEL2,
-    PROTOSSSHIELDSLEVEL3,
     PYLON,
     RALLY_UNITS,
-    RESEARCH_ADEPTRESONATINGGLAIVES,
     RESEARCH_BLINK,
     RESEARCH_CHARGE,
     RESEARCH_EXTENDEDTHERMALLANCE,
@@ -97,7 +83,6 @@ from sc2.constants import (
     TWILIGHTCOUNCIL,
     VOIDRAY,
     WARPGATE,
-    WARPGATETRAIN_STALKER,
     WARPGATETRAIN_ZEALOT,
     ZEALOT,
 )
@@ -837,7 +822,6 @@ class MadBot(sc2.BotAI):
 
                     prediction = self.model.predict(new_choice_data)
                     choice = np.argmax(prediction[0])
-                    certainty = prediction[0][choice]
                     print(prediction[0])
 
                     self.build_order = choice
@@ -3519,7 +3503,6 @@ class MadBot(sc2.BotAI):
         # OPTIMIZE: Assign idle workers smarter
         # OPTIMIZE: Never use same worker multiple times
 
-        expansion_locations = self.expansion_locations
         owned_expansions = self.owned_expansions
         worker_pool = []
         for idle_worker in self.workers.idle:
@@ -3551,7 +3534,7 @@ class MadBot(sc2.BotAI):
             ideal = g.ideal_harvesters
             deficit = ideal - actual
 
-            for x in range(0, deficit):
+            for _ in range(0, deficit):
                 if worker_pool:
                     w = worker_pool.pop()
                     if len(w.orders) == 1 and w.orders[0].ability.id in [HARVEST_RETURN]:
