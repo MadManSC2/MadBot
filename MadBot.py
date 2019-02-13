@@ -509,7 +509,7 @@ class MadBot(sc2.BotAI):
             if (
                 self.can_afford(GATEWAY)
                 and self.supply_used >= 16
-                and len(self.units(GATEWAY)) < 1
+                and not self.units(GATEWAY)
                 and not self.already_pending(GATEWAY)
             ):
                 await self.build(GATEWAY, near=self.main_base_ramp.barracks_correct_placement)
@@ -947,9 +947,9 @@ class MadBot(sc2.BotAI):
                         lambda unit: unit.type_id not in self.units_to_ignore_defend
                     ).closer_than(11, structure.position)
                     # print(threats)
-                    if len(threats) > 0:
+                    if threats:
                         break
-                if len(threats) > 0:
+                if threats:
                     break
             # print(len(threats))
             # Full rush incoming. Pull all probes
@@ -968,7 +968,7 @@ class MadBot(sc2.BotAI):
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
             # 12 Pool or some kind of stuff
-            elif 1 < len(threats) < 7 and len(self.prg) == 0:
+            elif 1 < len(threats) < 7 and not self.prg:
                 # print('Half')
                 self.defend_early = True
                 self.back_home_early = True
@@ -984,7 +984,7 @@ class MadBot(sc2.BotAI):
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
             # Just some harass. Pull only two probes
-            elif len(threats) == 1 and not self.defend_early and len(self.prg2) == 0 and len(self.units(PROBE)) > 1:
+            elif len(threats) == 1 and not self.defend_early and not self.prg2 and len(self.units(PROBE)) > 1:
                 # print('Two')
                 self.defend_early = True
                 self.back_home_early = True
@@ -995,10 +995,10 @@ class MadBot(sc2.BotAI):
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
             # Threat is gone for now. Go back to work
-            elif (len(self.prg) > 0 or len(self.prg2) > 0) and len(threats) == 0 and self.back_home_early:
+            elif (self.prg or self.prg2) and not threats and self.back_home_early:
                 # print('Back1')
                 if self.units(NEXUS).exists:
-                    if len(self.prg) > 0:
+                    if self.prg:
                         for pr in self.prg:
                             self.combinedActions.append(
                                 pr.gather(self.state.mineral_field.closest_to(self.units(NEXUS).first))
@@ -1012,7 +1012,7 @@ class MadBot(sc2.BotAI):
                                 )
                             )
                         self.prg = []
-                    elif len(self.prg2) > 0:
+                    elif self.prg2:
                         for pr in self.prg2:
                             self.combinedActions.append(
                                 pr.gather(self.state.mineral_field.closest_to(self.units(NEXUS).first))
@@ -1030,7 +1030,7 @@ class MadBot(sc2.BotAI):
                 self.defend_early = False
                 self.back_home_early = False
             # Everything is fine again. Go back to work
-            elif len(threats) == 0 and self.back_home_early:
+            elif not threats and self.back_home_early:
                 # print('Back2')
                 self.back_home_early = False
                 self.defend_early = False
@@ -1629,7 +1629,7 @@ class MadBot(sc2.BotAI):
                         )
 
             if self.units(ROBOTICSFACILITY).ready.exists:
-                if len(self.units(ROBOTICSBAY)) < 1:
+                if not self.units(ROBOTICSBAY):
                     if self.can_afford(ROBOTICSBAY) and not self.already_pending(ROBOTICSBAY):
                         await self.build(
                             ROBOTICSBAY,
@@ -1711,11 +1711,11 @@ class MadBot(sc2.BotAI):
                     threats += self.known_enemy_units.filter(
                         lambda unit: unit.type_id not in self.units_to_ignore
                     ).closer_than(self.threat_proximity, structure.position)
-                    if len(threats) > 0:
+                    if threats:
                         break
-                if len(threats) > 0:
+                if threats:
                     break
-            if len(threats) > 0 and not self.defend:
+            if threats and not self.defend:
                 self.defend = True
                 self.back_home = True
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
@@ -1727,7 +1727,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(st.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) > 0 and self.defend:
+            elif threats and self.defend:
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
                 for cl in self.units(COLOSSUS).idle:
                     self.combinedActions.append(cl.attack(defence_target))
@@ -1737,7 +1737,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(st.attack(defence_target))
                 for zl in self.units(ZEALOT).idle:
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.back_home:
+            elif not threats and self.back_home:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
@@ -1868,11 +1868,11 @@ class MadBot(sc2.BotAI):
                     threats += self.known_enemy_units.filter(
                         lambda unit: unit.type_id not in self.units_to_ignore
                     ).closer_than(self.threat_proximity, structure.position)
-                    if len(threats) > 0:
+                    if threats:
                         break
-                if len(threats) > 0:
+                if threats:
                     break
-            if len(threats) > 0 and not self.defend:
+            if threats and not self.defend:
                 self.defend = True
                 self.back_home = True
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
@@ -1884,7 +1884,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(st.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) > 0 and self.defend:
+            elif threats and self.defend:
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
                 for cl in self.units(COLOSSUS).idle:
                     self.combinedActions.append(cl.attack(defence_target))
@@ -1894,7 +1894,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(st.attack(defence_target))
                 for zl in self.units(ZEALOT).idle:
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.back_home:
+            elif not threats and self.back_home:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
@@ -2118,7 +2118,7 @@ class MadBot(sc2.BotAI):
         for rf in self.units(ROBOTICSFACILITY).ready.noqueue:
             if (
                 len(self.units(IMMORTAL).ready) >= 2
-                and len(self.units(OBSERVER).ready) == 0
+                and not self.units(OBSERVER).ready
                 and self.can_afford(OBSERVER)
                 and self.supply_left > 1
             ):
@@ -2156,7 +2156,7 @@ class MadBot(sc2.BotAI):
                 ):
                     await self.do(wg.warp_in(SENTRY, warp_place))
                 elif self.units(CYBERNETICSCORE).ready.exists and self.can_afford(STALKER) and self.supply_left > 1:
-                    if len(self.remembered_enemy_units.of_type({UnitTypeId.CARRIER})) > 0:
+                    if self.remembered_enemy_units.of_type({UnitTypeId.CARRIER}):
                         await self.do(wg.warp_in(STALKER, warp_place))
                     else:
                         build_what = random.randrange(0, 5)
@@ -2178,11 +2178,11 @@ class MadBot(sc2.BotAI):
                     threats += self.known_enemy_units.filter(
                         lambda unit: unit.type_id not in self.units_to_ignore
                     ).closer_than(self.threat_proximity, structure.position)
-                    if len(threats) > 0:
+                    if threats:
                         break
-                if len(threats) > 0:
+                if threats:
                     break
-            if len(threats) > 0 and not self.defend:
+            if threats and not self.defend:
                 self.defend = True
                 self.back_home = True
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
@@ -2196,7 +2196,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) > 0 and self.defend:
+            elif threats and self.defend:
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
                 for cl in self.units(IMMORTAL).idle:
                     self.combinedActions.append(cl.attack(defence_target))
@@ -2208,7 +2208,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT).idle:
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.back_home:
+            elif not threats and self.back_home:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
@@ -2295,7 +2295,7 @@ class MadBot(sc2.BotAI):
                         self.combinedActions.append(zl.attack(attack_target))
                     for ad in self.units(ADEPT).idle:
                         self.combinedActions.append(ad.attack(attack_target))
-                    if len(self.units(IMMORTAL)) == 0:
+                    if not self.units(IMMORTAL):
                         self.first_attack = False
                         self.gathered = False
 
@@ -2421,11 +2421,11 @@ class MadBot(sc2.BotAI):
                     threats += self.known_enemy_units.filter(
                         lambda unit: unit.type_id not in self.units_to_ignore
                     ).closer_than(self.threat_proximity, structure.position)
-                    if len(threats) > 0:
+                    if threats:
                         break
-                if len(threats) > 0:
+                if threats:
                     break
-            if len(threats) > 0 and not self.defend:
+            if threats and not self.defend:
                 self.defend = True
                 self.back_home = True
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
@@ -2437,7 +2437,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) > 0 and self.defend:
+            elif threats and self.defend:
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
                 for se in self.units(SENTRY).idle:
                     self.combinedActions.append(se.attack(defence_target))
@@ -2447,7 +2447,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT).idle:
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.back_home:
+            elif not threats and self.back_home:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
@@ -2594,11 +2594,9 @@ class MadBot(sc2.BotAI):
                         random_alternative=False,
                         placement_step=5,
                     )
-            elif (
-                len(self.units(SHIELDBATTERY))
-                < (len(self.units(ZEALOT)) + len(self.units(STALKER)) + len(self.units(ADEPT))) / 2
-                and len(self.units(SHIELDBATTERY)) < 1
-            ):
+            elif len(self.units(SHIELDBATTERY)) < (
+                len(self.units(ZEALOT)) + len(self.units(STALKER)) + len(self.units(ADEPT))
+            ) / 2 and not self.units(SHIELDBATTERY):
                 if self.can_afford(SHIELDBATTERY) and self.units(NEXUS).ready.exists:
                     position = await self.find_placement(
                         SHIELDBATTERY,
@@ -2614,7 +2612,7 @@ class MadBot(sc2.BotAI):
                     await self.build(FORGE, near=self.units(PYLON).ready.random)
             elif (
                 self.units(FORGE).ready.exists
-                and len(self.units(PHOTONCANNON)) < 1
+                and not self.units(PHOTONCANNON)
                 and not self.already_pending(PHOTONCANNON)
             ):
                 if self.can_afford(PHOTONCANNON) and self.units(NEXUS).ready.exists:
@@ -2647,7 +2645,7 @@ class MadBot(sc2.BotAI):
                             )
 
             if (
-                len(self.units(TWILIGHTCOUNCIL)) < 1
+                self.units(TWILIGHTCOUNCIL)
                 and not self.units(TWILIGHTCOUNCIL).exists
                 and not self.already_pending(TWILIGHTCOUNCIL)
             ):
@@ -2661,7 +2659,7 @@ class MadBot(sc2.BotAI):
                     )
 
             if (
-                len(self.units(DARKSHRINE)) < 1
+                not self.units(DARKSHRINE)
                 and not self.units(DARKSHRINE).exists
                 and not self.already_pending(DARKSHRINE)
             ):
@@ -2717,7 +2715,7 @@ class MadBot(sc2.BotAI):
             elif (
                 self.units(GATEWAY).ready.exists
                 and self.units(CYBERNETICSCORE).ready.exists
-                and len(self.units(STALKER)) == 0
+                and not self.units(STALKER)
                 and self.can_afford(STALKER)
                 and self.supply_left > 1
             ):
@@ -2725,7 +2723,7 @@ class MadBot(sc2.BotAI):
             elif (
                 self.units(GATEWAY).ready.exists
                 and self.units(CYBERNETICSCORE).ready.exists
-                and len(self.units(STALKER)) > 0
+                and self.units(STALKER)
                 and len(self.units(ADEPT)) / len(self.units(STALKER)) > 3
                 and self.can_afford(STALKER)
                 and self.supply_left > 1
@@ -2766,10 +2764,10 @@ class MadBot(sc2.BotAI):
                     await self.do(wg.warp_in(DARKTEMPLAR, warp_place_dt))
                 elif len(self.units(DARKTEMPLAR)) >= 3 and self.can_afford(STALKER) and self.supply_left > 1:
                     await self.do(wg.warp_in(STALKER, warp_place))
-                elif len(self.units(STALKER)) == 0 and self.can_afford(STALKER) and self.supply_left > 1:
+                elif not self.units(STALKER) and self.can_afford(STALKER) and self.supply_left > 1:
                     await self.do(wg.warp_in(STALKER, warp_place))
                 elif (
-                    len(self.units(STALKER)) > 0
+                    self.units(STALKER)
                     and len(self.units(ADEPT)) / len(self.units(STALKER)) > 3
                     and self.can_afford(STALKER)
                     and self.supply_left > 1
@@ -2800,11 +2798,11 @@ class MadBot(sc2.BotAI):
                     threats += self.known_enemy_units.filter(
                         lambda unit: unit.type_id not in self.units_to_ignore
                     ).closer_than(self.threat_proximity, structure.position)
-                    if len(threats) > 0:
+                    if threats:
                         break
-                if len(threats) > 0:
+                if threats:
                     break
-            if len(threats) > 0 and not self.defend:
+            if threats and not self.defend:
                 self.defend = True
                 self.back_home = True
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
@@ -2814,7 +2812,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) > 0 and self.defend:
+            elif threats and self.defend:
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
                 for st in self.units(STALKER).idle:
                     self.combinedActions.append(st.attack(defence_target))
@@ -2822,7 +2820,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT).idle:
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.back_home and self.units(NEXUS).exists:
+            elif not threats and self.back_home and self.units(NEXUS).exists:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
@@ -2836,7 +2834,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.units(NEXUS).exists:
+            elif not threats and self.units(NEXUS).exists:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
@@ -2896,17 +2894,14 @@ class MadBot(sc2.BotAI):
                     )
                 if self.first_attack:
                     for dt in self.units(DARKTEMPLAR).idle:
-                        if len(self.known_enemy_units.of_type(UnitTypeId.SPORECRAWLER)) > 0:
+                        if self.known_enemy_units.of_type(UnitTypeId.SPORECRAWLER):
                             # print('Attacking Spore')
                             self.combinedActions.append(
                                 dt.attack(
                                     self.known_enemy_units.of_type(UnitTypeId.SPORECRAWLER).closest_to(dt.position)
                                 )
                             )
-                        elif (
-                            len(self.known_enemy_units.of_type({UnitTypeId.DRONE, UnitTypeId.PROBE, UnitTypeId.SCV}))
-                            > 0
-                        ):
+                        elif self.known_enemy_units.of_type({UnitTypeId.DRONE, UnitTypeId.PROBE, UnitTypeId.SCV}):
                             # print('Attacking Drone')
                             self.combinedActions.append(
                                 dt.attack(
@@ -2957,11 +2952,7 @@ class MadBot(sc2.BotAI):
                         "and Zealots: ",
                         len(self.units(ZEALOT)),
                     )
-                if (
-                    gather_target
-                    and not self.second_attack
-                    and len(self.known_enemy_units.of_type(UnitTypeId.BANSHEE)) == 0
-                ):
+                if gather_target and not self.second_attack and not self.known_enemy_units.of_type(UnitTypeId.BANSHEE):
                     for st in self.units(STALKER):
                         self.combinedActions.append(st.attack(gather_target))
                     for ad in self.units(ADEPT):
@@ -2988,28 +2979,28 @@ class MadBot(sc2.BotAI):
         #     for structure_type in self.defend_around:
         #         for structure in self.units(structure_type):
         #             threats += self.known_enemy_units.filter(lambda unit: unit.type_id not in self.units_to_ignore).closer_than(self.threat_proximity, structure.position)
-        #             if len(threats) > 0:
+        #             if threats:
         #                 break
-        #         if len(threats) > 0:
+        #         if threats:
         #             break
-        #     if len(threats) > 0 and not self.defend:
+        #     if threats and not self.defend:
         #         self.defend = True
         #         self.back_home = True
         #         defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
         #         for se in self.units(DARKTEMPLAR).idle:
         #             self.combinedActions.append(se.attack(defence_target))
-        #     elif len(threats) > 0 and self.defend:
+        #     elif threats and self.defend:
         #         defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
         #         for se in self.units(DARKTEMPLAR).idle:
         #             self.combinedActions.append(se.attack(defence_target))
-        #     elif len(threats) == 0 and self.back_home and self.units(NEXUS).exists:
+        #     elif not threats and self.back_home and self.units(NEXUS).exists:
         #         self.back_home = False
         #         self.defend = False
         #         defence_target = self.units(NEXUS).closest_to(self.game_info.map_center).position.towards(
         #             self.game_info.map_center, random.randrange(8, 10))
         #         for se in self.units(DARKTEMPLAR).idle:
         #             self.combinedActions.append(se.attack(defence_target))
-        #     elif len(threats) == 0 and self.units(NEXUS).exists:
+        #     elif not threats and self.units(NEXUS).exists:
         #         self.back_home = False
         #         self.defend = False
         #         defence_target = self.units(NEXUS).closest_to(self.game_info.map_center).position.towards(
@@ -3089,7 +3080,7 @@ class MadBot(sc2.BotAI):
                 self.units(CYBERNETICSCORE).ready.exists
                 and self.can_afford(STARGATE)
                 and not self.already_pending(STARGATE)
-                and len(self.units(STARGATE).ready) < 1
+                and not self.units(STARGATE).ready
             ):
                 await self.build(STARGATE, near=pylon, max_distance=10, random_alternative=False, placement_step=5)
             elif (
@@ -3202,11 +3193,11 @@ class MadBot(sc2.BotAI):
                     threats += self.known_enemy_units.filter(
                         lambda unit: unit.type_id not in self.units_to_ignore
                     ).closer_than(self.threat_proximity, structure.position)
-                    if len(threats) > 0:
+                    if threats:
                         break
-                if len(threats) > 0:
+                if threats:
                     break
-            if len(threats) > 0 and not self.defend:
+            if threats and not self.defend:
                 self.defend = True
                 self.back_home = True
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
@@ -3218,7 +3209,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) > 0 and self.defend:
+            elif threats and self.defend:
                 defence_target = threats[0].position.random_on_distance(random.randrange(1, 3))
                 for vr in self.units(VOIDRAY).idle:
                     self.combinedActions.append(vr.attack(defence_target))
@@ -3228,7 +3219,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT).idle:
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.back_home and self.units(NEXUS).exists:
+            elif not threats and self.back_home and self.units(NEXUS).exists:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
@@ -3244,7 +3235,7 @@ class MadBot(sc2.BotAI):
                     self.combinedActions.append(ad.attack(defence_target))
                 for zl in self.units(ZEALOT):
                     self.combinedActions.append(zl.attack(defence_target))
-            elif len(threats) == 0 and self.units(NEXUS).exists:
+            elif not threats and self.units(NEXUS).exists:
                 self.back_home = False
                 self.defend = False
                 defence_target = (
