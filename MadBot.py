@@ -12,7 +12,7 @@ Micromachine, Kagamine, AviloBot, EarlyAggro, Voidstar, ReeBot
 
 - Version 1.6: Adapted early game rush defense in order to deal better with 12 pools (e.g. by CheeZerg).
 Trained a new neural network with 730 games against the newest versions of most bots available.
-Also refined scouting on 4 player maps and tuned the late game emergency strat to prevent ties.
+Also refined scouting on 4 player maps and tuned the late game emergency strategy to prevent ties.
 
 - Version 1.6.1: Bugfixes and new Model
 
@@ -1356,7 +1356,7 @@ class MadBot(sc2.BotAI):
                 ).closer_than(st.ground_range + st.radius, st.position)
                 for threat in threats:
                     if threat.health <= 13:
-                        # print('Attacking prefered Enemy', threat, 'with health:', threat.health)
+                        # print('Attacking preferred Enemy', threat, 'with health:', threat.health)
                         self.combinedActions.append(st.attack(threat))
 
         # Adept-Micro
@@ -1408,7 +1408,7 @@ class MadBot(sc2.BotAI):
                 ).closer_than(ad.ground_range + ad.radius, ad.position)
                 for threat in threats:
                     if threat.health <= 10:
-                        # print('Attacking prefered Enemy', threat, 'with health:', threat.health)
+                        # print('Attacking preferred Enemy', threat, 'with health:', threat.health)
                         self.combinedActions.append(ad.attack(threat))
 
             # Prioritize targets with a specific armor type
@@ -1416,7 +1416,7 @@ class MadBot(sc2.BotAI):
             #     threats = self.known_enemy_units.closer_than(st.ground_range + st.radius, st.position)
             #     for threat in threats:
             #         if threat.is_armored:
-            #             print('- Attacking prefered Enemy -', threat)
+            #             print('- Attacking preferred Enemy -', threat)
             #             self.combinedActions.append(st.attack(threat))
 
         # Immortal-Micro
@@ -1868,7 +1868,7 @@ class MadBot(sc2.BotAI):
                 self.first_attack = False
                 print("Fully committing")
 
-        # execuite actions
+        # execute actions
         await self.do_actions(self.combinedActions)
 
     async def two_base_colossus_unit_control_lategame(self):
@@ -1993,7 +1993,7 @@ class MadBot(sc2.BotAI):
                 self.combinedActions.append(zl.attack(attack_target))
             self.do_something_after = self.time + 5
 
-        # execuite actions
+        # execute actions
         await self.do_actions(self.combinedActions)
 
     async def two_base_colossus_upgrade_lategame(self):
@@ -2347,7 +2347,7 @@ class MadBot(sc2.BotAI):
                 self.combinedActions.append(ad.attack(attack_target))
             self.do_something_after = self.time + 5
 
-        # execuite actions
+        # execute actions
         await self.do_actions(self.combinedActions)
 
     # Specific Functions for Four Gate Proxy Build
@@ -2570,7 +2570,7 @@ class MadBot(sc2.BotAI):
                 self.combinedActions.append(ad.attack(attack_target))
             self.do_something_after = self.time + 5
 
-        # execuite actions
+        # execute actions
         await self.do_actions(self.combinedActions)
 
     # Specific Functions for One Base DT Build Order
@@ -3060,7 +3060,7 @@ class MadBot(sc2.BotAI):
                 self.combinedActions.append(ad.attack(attack_target))
             self.do_something_after = self.time + 5
 
-        # execuite actions
+        # execute actions
         await self.do_actions(self.combinedActions)
 
     # Specific Functions for One Base VR Build Order
@@ -3360,7 +3360,7 @@ class MadBot(sc2.BotAI):
                 self.combinedActions.append(ad.attack(attack_target))
             self.do_something_after = self.time + 5
 
-        # execuite actions
+        # execute actions
         await self.do_actions(self.combinedActions)
 
     async def destroy_lifted_buildings(self):
@@ -3502,7 +3502,7 @@ class MadBot(sc2.BotAI):
                 self.combinedActions.append(ad.attack(attack_target))
             self.do_something_after = self.time + 5
 
-        # execuite actions
+        # execute actions
         await self.do_actions(self.combinedActions)
 
     async def distribute_workers(self):
@@ -3514,7 +3514,7 @@ class MadBot(sc2.BotAI):
 
         # TODO:
         # OPTIMIZE: Assign idle workers smarter
-        # OPTIMIZE: Never use same worker mutltiple times
+        # OPTIMIZE: Never use same worker multiple times
 
         expansion_locations = self.expansion_locations
         owned_expansions = self.owned_expansions
