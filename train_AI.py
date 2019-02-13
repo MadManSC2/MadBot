@@ -1,11 +1,13 @@
-import keras  # Keras 2.1.2 and TF-GPU 1.9.0
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.callbacks import TensorBoard
-import numpy as np
 import os
 import random
+
+import keras  # Keras 2.1.2 and TF-GPU 1.9.0
+import numpy as np
 import tensorflow as tf
+from keras.callbacks import TensorBoard
+from keras.layers import Dense, Dropout, Flatten
+from keras.models import Sequential
+
 
 train_data_dir = "train_data"
 training_data = []
