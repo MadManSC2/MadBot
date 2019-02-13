@@ -103,6 +103,7 @@ class MadBot(sc2.BotAI):
         self.MAX_GATES = 3
         self.MAX_ROBOS = 1
         self.MAX_GAS = 4
+        self.enemy_natural = None
         self.first_gas_taken = False
         self.early_game_finished = False
         self.warpgate_started = False
