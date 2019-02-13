@@ -87,7 +87,7 @@ from sc2.constants import (
     ZEALOT,
 )
 from sc2.ids.unit_typeid import UnitTypeId
-
+from sc2.position import Point2
 
 HEADLESS = False
 
@@ -3557,11 +3557,7 @@ class MadBot(sc2.BotAI):
         closest = None
         distance = math.inf
         for el in self.expansion_locations:
-
-            def is_near_to_expansion(t):
-                return t.position.distance_to(el) < self.EXPANSION_GAP_THRESHOLD
-
-            if is_near_to_expansion(sc2.position.Point2(self.enemy_start_locations[0])):
+            if Point2(self.enemy_start_locations[0]).position.distance_to(el) < 15:
                 continue
 
             # if any(map(is_near_to_expansion, )):
