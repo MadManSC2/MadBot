@@ -1,11 +1,6 @@
-## Disclaimer ##
-# I started this project to learn both python and machine learning (ML) at the same time.
-# This means that not only my code might be messy or sub-optimal, but also my ML techniques might be pretty basic.
-
 import keras  # Keras 2.1.2 and TF-GPU 1.9.0
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
 from keras.callbacks import TensorBoard
 import numpy as np
 import os
@@ -52,7 +47,7 @@ y = np.array(y).reshape(-1)
 model = Sequential()
 
 model.add(Flatten())
-model.add(Dense(150, activation=tf.nn.relu, input_dim=54))  # a simple fully-connected layer, 128 units, relu activation
+model.add(Dense(150, activation=tf.nn.relu, input_dim=54))  # a simple fully-connected layer, 150 units, relu activation
 model.add(Dropout(0.2))
 model.add(Dense(300, activation=tf.nn.relu))
 model.add(Dropout(0.2))
@@ -64,7 +59,7 @@ model.add(Dense(150, activation=tf.nn.relu))
 model.add(Dropout(0.2))
 model.add(
     Dense(5, activation=tf.nn.softmax)
-)  # our output layer. 4 units for 4 Build orders. Softmax for probability distribution
+)  # our output layer. 5 units for 5 Build orders. Softmax for probability distribution
 
 learning_rate = 0.001
 opt = keras.optimizers.adam(lr=learning_rate, decay=1e-6)
