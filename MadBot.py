@@ -39,6 +39,7 @@ import sc2
 import sc2.units
 from sc2.constants import (
     ADEPT,
+    ARCHON,
     ASSIMILATOR,
     CHRONOBOOSTENERGYCOST,
     COLOSSUS,
@@ -60,6 +61,7 @@ from sc2.constants import (
     GUARDIANSHIELD_GUARDIANSHIELD,
     HARVEST_RETURN,
     IMMORTAL,
+    MORPH_ARCHON,
     MORPH_WARPGATE,
     NEXUS,
     OBSERVER,
@@ -88,6 +90,8 @@ from sc2.constants import (
 )
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.position import Point2
+from s2clientprotocol import raw_pb2 as raw_pb
+from s2clientprotocol import sc2api_pb2 as sc_pb
 
 HEADLESS = False
 
@@ -120,6 +124,7 @@ class MadBot(sc2.BotAI):
         self.first_pylon_built = False
         self.armor_upgrade = 0
         self.weapon_upgrade = 0
+        self.dts_detected = False
 
         self.scout = []
         self.remembered_enemy_units = []
@@ -2915,13 +2920,39 @@ class MadBot(sc2.BotAI):
                             # print('Attacking Else')
                             self.combinedActions.append(dt.attack(attack_target_exe))
 
+        # Switch to Archons
+        if self.first_attack and not self.dts_detected and self.units(DARKTEMPLAR).random.shield < 1:
+            self.dts_detected = True
+            # print('DTs detected!!')
+
+        if self.dts_detected:
+            for dt in self.units(DARKTEMPLAR).idle:
+                # Get back to Base to be morphed to Archons savely
+                self.combinedActions.append(
+                    dt.move(self.units(PYLON).closest_to(self.units(SHIELDBATTERY).random)))
+            if len(self.units(DARKTEMPLAR).ready) >= 2:
+                dt1 = self.units(DARKTEMPLAR).ready.random
+                dt2 = next((dt for dt in self.units(DARKTEMPLAR).ready.closer_than(10, dt1.position) if
+                            dt.tag != dt1.tag), None)
+                if dt2:
+                    # print('trying morph')
+                    command = raw_pb.ActionRawUnitCommand(
+                        ability_id=MORPH_ARCHON.value,
+                        unit_tags=[dt1.tag, dt2.tag],
+                        queue_command=False
+                    )
+                    action = raw_pb.ActionRaw(unit_command=command)
+                    await self._client._execute(action=sc_pb.RequestAction(
+                        actions=[sc_pb.Action(action_raw=action)]
+                    ))
+
         if self.charge_started > 0 and self.time - self.charge_started >= 90:
             if self.time > self.do_something_after:
                 all_enemy_base = self.known_enemy_structures
                 if all_enemy_base.exists and self.units(NEXUS).exists:
                     next_enemy_base = all_enemy_base.closest_to(self.units(NEXUS).first)
                     attack_target = next_enemy_base.position.random_on_distance(random.randrange(1, 5))
-                    gather_target = next_enemy_base.position.towards(self.units(NEXUS).first.position, 40)
+                    gather_target = self.game_info.map_center.towards(self.enemy_start_locations[0], 17)
                 elif all_enemy_base.exists:
                     next_enemy_base = all_enemy_base.closest_to(self.game_info.map_center)
                     attack_target = next_enemy_base.position.random_on_distance(random.randrange(1, 5))
@@ -2938,6 +2969,8 @@ class MadBot(sc2.BotAI):
                         self.combinedActions.append(ad.attack(attack_target))
                     for dt in self.units(DARKTEMPLAR):
                         self.combinedActions.append(dt.attack(attack_target))
+                    for ar in self.units(ARCHON):
+                        self.combinedActions.append(ar.attack(attack_target))
                     for zl in self.units(ZEALOT):
                         self.combinedActions.append(zl.attack(attack_target))
                     self.second_attack = True
@@ -2948,6 +2981,8 @@ class MadBot(sc2.BotAI):
                         len(self.units(STALKER)),
                         "and Darktemplars: ",
                         len(self.units(DARKTEMPLAR)),
+                        "and Archons: ",
+                        len(self.units(ARCHON)),
                         "and Adepts: ",
                         len(self.units(ADEPT)),
                         "and Zealots: ",
@@ -2960,6 +2995,8 @@ class MadBot(sc2.BotAI):
                         self.combinedActions.append(ad.attack(gather_target))
                     for dt in self.units(DARKTEMPLAR).idle:
                         self.combinedActions.append(dt.attack(gather_target))
+                    for ar in self.units(ARCHON):
+                        self.combinedActions.append(ar.attack(gather_target))
                     for zl in self.units(ZEALOT):
                         self.combinedActions.append(zl.attack(gather_target))
                     wait = 30
@@ -2972,6 +3009,8 @@ class MadBot(sc2.BotAI):
                         self.combinedActions.append(ad.attack(attack_target))
                     for dt in self.units(DARKTEMPLAR).idle:
                         self.combinedActions.append(dt.attack(attack_target))
+                    for ar in self.units(ARCHON).idle:
+                        self.combinedActions.append(ar.attack(attack_target))
                     for zl in self.units(ZEALOT).idle:
                         self.combinedActions.append(zl.attack(attack_target))
 
@@ -3022,6 +3061,10 @@ class MadBot(sc2.BotAI):
                     random.randrange(12, 70 + int(self.time / 60))
                 )
                 self.combinedActions.append(se.attack(attack_target))
+            for ar in self.units(ARCHON).idle:
+                attack_target = self.game_info.map_center.random_on_distance(
+                    random.randrange(12, 70 + int(self.time / 60)))
+                self.combinedActions.append(ar.attack(attack_target))
             for st in self.units(STALKER).idle:
                 attack_target = self.game_info.map_center.random_on_distance(
                     random.randrange(12, 70 + int(self.time / 60))
